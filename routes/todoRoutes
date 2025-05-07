@@ -1,0 +1,53 @@
+// routes/todoRoutes.js
+const express = require('express');
+const router = express.Router();
+
+// Mock data for ToDo items
+let todos = [
+  { id: 1, title: "Do laundry", description: "Wash and fold clothes", completed: false },
+  { id: 2, title: "Buy groceries", description: "Milk, eggs, bread", completed: false },
+];
+
+// GET all todos
+router.get('/', (req, res) => {
+  res.json(todos);
+});
+
+// GET a specific todo by ID
+router.get('/:id', (req, res) => {
+  const todo = todos.find(t => t.id === parseInt(req.params.id));
+  if (!todo) return res.status(404).send('Todo not found');
+  res.json(todo);
+});
+
+// POST a new todo
+router.post('/', (req, res) => {
+  const { title, description, completed } = req.body;
+  const newTodo = { id: todos.length + 1, title, description, completed };
+  todos.push(newTodo);
+  res.status(201).json(newTodo);
+});
+
+// PUT to update an existing todo by ID
+router.put('/:id', (req, res) => {
+  const todo = todos.find(t => t.id === parseInt(req.params.id));
+  if (!todo) return res.status(404).send('Todo not found');
+
+  const { title, description, completed } = req.body;
+  todo.title = title || todo.title;
+  todo.description = description || todo.description;
+  todo.completed = completed !== undefined ? completed : todo.completed;
+
+  res.json(todo);
+});
+
+// DELETE a todo by ID
+router.delete('/:id', (req, res) => {
+  const todoIndex = todos.findIndex(t => t.id === parseInt(req.params.id));
+  if (todoIndex === -1) return res.status(404).send('Todo not found');
+
+  todos.splice(todoIndex, 1);
+  res.status(200).send('Todo deleted');
+});
+
+module.exports = router;
